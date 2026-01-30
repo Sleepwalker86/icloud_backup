@@ -38,6 +38,11 @@ python backup_photos.py
 
 Beim ersten Lauf werden alle Fotos exportiert. Bei weiteren Läufen werden nur **neue oder geänderte** Fotos kopiert (`--update`).
 
+## Gelöschte Fotos in iCloud
+
+**Fotos, die du in iCloud oder in der Fotos-App löschst, werden im Backup nicht gelöscht.**  
+Das Script nutzt bewusst nicht die Option `--cleanup`. Einmal exportierte Fotos bleiben auf `/Volumes/Fotos/icloud_fotos` erhalten – das Backup dient als Sicherungskopie.
+
 ## Optionen im Script
 
 - **Zielpfad:** In `backup_photos.py` ist `BACKUP_PATH = Path("/Volumes/Fotos/icloud_fotos")` – bei Bedarf anpassen.

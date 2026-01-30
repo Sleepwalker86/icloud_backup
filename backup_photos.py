@@ -26,18 +26,13 @@ def main() -> int:
         print("Bitte externe Festplatte/Volume 'Fotos' verbinden.")
         return 1
 
-    if is_photos_running():
-        print("Fehler: Die App 'Fotos' (Photos) läuft noch.")
-        print("Die Photos-Datenbank ist gesperrt – osxphotos kann sie nicht lesen.")
-        print("Bitte Fotos vollständig beenden (Cmd+Q) und das Script erneut starten.")
-        return 1
-
     BACKUP_PATH.mkdir(parents=True, exist_ok=True)
 
     # osxphotos export mit sinnvollen Optionen für Backup:
     # --update: nur neue/geänderte Fotos (inkrementell)
     # --export-by-date: Ordnerstruktur Jahr/Monat/Tag
     # --verbose: Fortschritt anzeigen
+    # Kein --cleanup: Fotos, die du in iCloud/Photos löschst, bleiben im Backup erhalten.
     cmd = [
         "osxphotos",
         "export",
@@ -47,9 +42,20 @@ def main() -> int:
         "--verbose",
     ]
 
-    # Optional: Fehlende Fotos aus iCloud nachladen (kann Photos.app belasten)
-    # Auskommentieren, wenn du keine iCloud-Bibliothek nutzt oder es Probleme macht
-    # cmd.append("--download-missing")
+    # Fehlende Fotos aus iCloud nachladen (bei "Skipping missing original photo")
+    # Fotos-App muss dafür während des Backups geöffnet sein.
+    use_download_missing = True
+    if use_download_missing:
+        cmd.append("--download-missing")
+
+    if not use_download_missing and is_photos_running():
+        print("Fehler: Die App 'Fotos' (Photos) läuft noch.")
+        print("Die Photos-Datenbank ist gesperrt – osxphotos kann sie nicht lesen.")
+        print("Bitte Fotos vollständig beenden (Cmd+Q) und das Script erneut starten.")
+        return 1
+    if use_download_missing and not is_photos_running():
+        print("Hinweis: Für --download-missing sollte die Fotos-App geöffnet sein,")
+        print("damit fehlende Fotos aus iCloud nachgeladen werden können.")
 
     print(f"Starte Backup nach: {BACKUP_PATH}")
     print("Befehl:", " ".join(cmd))
